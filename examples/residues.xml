@@ -1,0 +1,19 @@
+<Residues>
+ <Residue name="co2">
+  <Bond from="C" to="O1"/>
+  <Bond from="C" to="O2"/>
+ </Residue>
+ <Residue name="wat">
+  <Bond from="OH2" to="H1"/>
+  <Bond from="OH2" to="H2"/>
+ </Residue>
+ <Residue name="eth">
+  <Bond from="C1" to="C5"/>
+  <Bond from="C1" to="H2"/>
+  <Bond from="C1" to="H3"/>
+  <Bond from="C1" to="H4"/>
+  <Bond from="C5" to="H6"/>
+  <Bond from="C5" to="H7"/>
+  <Bond from="C5" to="H8"/>
+ </Residue>
+</Residues>

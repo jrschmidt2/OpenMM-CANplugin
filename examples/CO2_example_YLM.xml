@@ -1,0 +1,122 @@
+<ForceField>
+
+ <AtomTypes>
+  <Type name="1" class="C_CO2" element="C" mass="12.01060"/>
+  <Type name="2" class="O1_CO2" element="O" mass="15.99943"/>
+  <Type name="3" class="O2_CO2" element="O" mass="15.99943"/>
+ </AtomTypes>
+ <Residues>
+  <Residue name="co2">
+   <Atom name="C" type="1"/>
+   <Atom name="O1" type="2"/>
+   <Atom name="O2" type="3"/>
+   <Bond from="0" to="1"/>
+   <Bond from="0" to="2"/>
+  </Residue>
+ </Residues>
+<!--
+ <HarmonicAngleForce>
+   <Angle class1="O1_CO2" class2="C_CO2" class3="O2_CO2" angle="3.14159" k="451.9"/>
+ </HarmonicAngleForce>
+
+ <AmoebaMultipoleForce  direct11Scale="1.0"  direct12Scale="1.0"  direct13Scale="1.0"  direct14Scale="1.0"  mpole12Scale="0.5"  mpole13Scale="0.5"  mpole14Scale="0.8"  mpole15Scale="0.8"  mutual11Scale="0.0"  mutual12Scale="0.0"  mutual13Scale="1.0"  mutual14Scale="1.0"  polar12Scale="1.0"  polar13Scale="0.0"  polar14Intra="0.5"  polar14Scale="1.0"  polar15Scale="1.0"  >
+     <Multipole type="1" kz="2" kx="0" c0="0.884358" d1="0" d2="0" d3="2.64589e-07" q11="6.41139e-05" q21="0" q22="6.41139e-05" q31="0" q32="0" q33="-0.000128228" />
+     <Multipole type="2" kz="1" kx="0" c0="-0.442179" d1="0" d2="0" d3="-0.00621566" q11="-3.68839e-05" q21="0" q22="-3.68839e-05" q31="0" q32="0" q33="7.37679e-05" />
+     <Multipole type="3" kz="1" kx="0" c0="-0.442179" d1="0" d2="0" d3="-0.00621566" q11="-3.68839e-05" q21="0" q22="-3.68839e-05" q31="0" q32="0" q33="7.37679e-05" />
+     <Multipole type="4" kz="0" kx="0" c0="0" d1="0" d2="0" d3="0" q11="0" q21="0" q22="0" q31="0" q32="0" q33="0" />
+
+
+    <Polarize type="1" polarizability="9.462152e-04" thole="0.35" pgrp1="2" />
+    <Polarize type="2" polarizability="8.686963e-04" thole="0.35" pgrp1="1" />
+    <Polarize type="3" polarizability="8.686963e-04" thole="0.35" pgrp1="1" />
+    <Polarize type="4" polarizability="1e-8"            thole="0.33" pgrp1="1" />
+</AmoebaMultipoleForce>
+-->
+
+
+ <CustomAnisotropicNonbondedForce bondCutoff="2" energy= "(A*K2*exBr - (Adi)*(f6*C6/(r^6) + f8*C8/(r^8) + f10*C10/(r^10) + f12*C12/(r^12)));
+	 A=Aex-Ael-Ain-Adh;
+	 Aex=(Aexch1*Aexch2*Aexch1_sph*Aexch2_sph);
+	 Aexch1_sph= 1 + aexch_y101*y101 + aexch_y201*y201 + aexch_y22c1*y22c1;
+	 Aexch2_sph= 1 + aexch_y102*y102 + aexch_y202*y202 + aexch_y22c2*y22c2;
+	 Ael=(Aelec1*Aelec2*Aelec1_sph*Aelec2_sph);
+	 Aelec1_sph= 1 + aelec_y101*y101 + aelec_y201*y201 + aelec_y22c1*y22c1;
+	 Aelec2_sph= 1 + aelec_y102*y102 + aelec_y202*y202 + aelec_y22c2*y22c2;
+	 Ain=(Aind1*Aind2*Aind1_sph*Aind2_sph);
+	 Aind1_sph= 1 + aind_y101*y101 + aind_y201*y201 + aind_y22c1*y22c1;
+	 Aind2_sph= 1 + aind_y102*y102 + aind_y202*y202 + aind_y22c2*y22c2;
+	 Adh=(Adhf1*Adhf2*Adhf1_sph*Adhf2_sph);
+	 Adhf1_sph= 1 + adhf_y101*y101 + adhf_y201*y201 + adhf_y22c1*y22c1;
+	 Adhf2_sph= 1 + adhf_y102*y102 + adhf_y202*y202 + adhf_y22c2*y22c2;
+	 Adi=(Adisp1*Adisp2*Adisp1_sph*Adisp2_sph);
+	 Adisp1_sph= 1 + adisp_y101*y101 + adisp_y201*y201 + adisp_y22c1*y22c1;
+	 Adisp2_sph= 1 + adisp_y102*y102 + adisp_y202*y202 + adisp_y22c2*y22c2;
+	 K2=(Br^2)/3 + Br + 1;
+	 f12 = f10 - exX*((1/39916800)*(X^11)*(1 + X/12));
+	 f10 = f8 - exX*((1/362880)*(X^9)*(1 + X/10));
+	 f8 = f6 - exX*((1/5040)*(X^7)*(1 + X/8));
+	 f6 = 1 - exX*(1 + X * (1 + (1/2)*X*(1 + (1/3)*X*(1 + (1/4)*X*(1 + (1/5)*X*(1 + (1/6)*X))))));
+	 exX = exp(-X);
+	 X = Br - r * (2*(B^2)*r + 3*B)/(Br^2 + 3*Br + 3);
+	 exBr = exp(-Br);
+	 Br = B*r;
+    	 y101 = y10_1; 
+    	 y102 = y10_2;
+    	 y201 = y20_1;
+    	 y202 = y20_2;
+	 y22c1 = y22_1;
+	 y22c2 = y22_2;
+	 B=sqrt(Bexp1*Bexp2);
+	 C6=sqrt(C61*C62);
+	 C8=sqrt(C81*C82);
+	 C10=sqrt(C101*C102);
+	 C12=sqrt(C121*C122)" >
+   <PerParticleParameter name="Aexch"/>
+   <PerParticleParameter name="aexch_y10"/>
+   <PerParticleParameter name="aexch_y20"/>
+   <PerParticleParameter name="aexch_y22c"/>
+   <PerParticleParameter name="Aelec"/>
+   <PerParticleParameter name="aelec_y10"/>
+   <PerParticleParameter name="aelec_y20"/>
+   <PerParticleParameter name="aelec_y22c"/>
+   <PerParticleParameter name="Aind"/>
+   <PerParticleParameter name="aind_y10"/>
+   <PerParticleParameter name="aind_y20"/>
+   <PerParticleParameter name="aind_y22c"/>
+   <PerParticleParameter name="Adhf"/>
+   <PerParticleParameter name="adhf_y10"/>
+   <PerParticleParameter name="adhf_y20"/>
+   <PerParticleParameter name="adhf_y22c"/>
+   <PerParticleParameter name="Adisp"/>
+   <PerParticleParameter name="adisp_y10"/>
+   <PerParticleParameter name="adisp_y20"/>
+   <PerParticleParameter name="adisp_y22c"/>
+   <PerParticleParameter name="Bexp"/>
+   <PerParticleParameter name="C6"/>
+   <PerParticleParameter name="C8"/>
+   <PerParticleParameter name="C10"/>
+   <PerParticleParameter name="C12"/>
+   <Atom class= "C_CO2" AtomZ = "2"
+       Aexch="1.414656e+02" aexch_y10="0.000000e+00" aexch_y20="4.032290e-01" aexch_y22c="0.000000e+00"
+       Aelec="1.421757e+02" aelec_y10="0.000000e+00" aelec_y20="9.823030e-01" aelec_y22c="0.000000e+00"
+       Aind="1.919441e+01" aind_y10="0.000000e+00" aind_y20="-1.000000e+00" aind_y22c="0.000000e+00"
+       Adhf="1.680096e+01" adhf_y10="0.000000e+00" adhf_y20="-1.000000e+00" adhf_y22c="0.000000e+00"
+       Adisp="1.017705e+00" adisp_y10="0.000000e+00" adisp_y20="-5.366200e-01" adisp_y22c="0.000000e+00"
+       Bexp="4.348231e+01" C6="1.262157e-03" C8="6.962318e-05" C10="3.262527e-06" C12="2.019001e-07"/>
+   <Atom class = "O1_CO2" AtomZ="1"
+       Aexch="1.868046e+02" aexch_y10="2.045300e-02" aexch_y20="-8.284400e-02" aexch_y22c="0.000000e+00"
+       Aelec="8.714577e+01" aelec_y10="-2.134580e-01" aelec_y20="-2.281160e-01" aelec_y22c="0.000000e+00"
+       Aind="3.459401e+01" aind_y10="1.000000e+00" aind_y20="4.099520e-01" aind_y22c="0.000000e+00"
+       Adhf="2.856014e+01" adhf_y10="-1.000000e+00" adhf_y20="-5.779180e-01" adhf_y22c="0.000000e+00"
+       Adisp="7.304340e-01" adisp_y10="-1.000000e+00" adisp_y20="-3.965300e-01" adisp_y22c="0.000000e+00"
+       Bexp="4.450987e+01" C6="9.540046e-04" C8="4.693183e-05" C10="3.163703e-06" C12="1.458385e-07"/>
+   <Atom class="O2_CO2" AtomZ="1"
+       Aexch="1.868046e+02" aexch_y10="2.045300e-02" aexch_y20="-8.284400e-02" aexch_y22c="0.000000e+00"
+       Aelec="8.714577e+01" aelec_y10="-2.134580e-01" aelec_y20="-2.281160e-01" aelec_y22c="0.000000e+00"
+       Aind="3.459401e+01" aind_y10="1.000000e+00" aind_y20="4.099520e-01" aind_y22c="0.000000e+00"
+       Adhf="2.856014e+01" adhf_y10="-1.000000e+00" adhf_y20="-5.779180e-01" adhf_y22c="0.000000e+00"
+       Adisp="7.304340e-01" adisp_y10="-1.000000e+00" adisp_y20="-3.965300e-01" adisp_y22c="0.000000e+00"
+       Bexp="4.450987e+01" C6="9.540046e-04" C8="4.693183e-05" C10="3.163703e-06" C12="1.458385e-07"/>
+ </CustomAnisotropicNonbondedForce>
+
+</ForceField>
