@@ -12,7 +12,9 @@ This repository houses a plugin to incorporate user-defined force expressions wh
 Figure 1: Depiction of local coordinate systems for atomic anisotropy definitions. <br />
 <img src="https://github.com/tesiadj16/OpenMM-CANplugin/blob/master/axOrient.PNG" width = "500"> 
 <br />
+
 ---
+
 **Plugin Directory Framework** <br />
 I. openmm_can  	<br />									
  A. openmmcustomanisotropicnonbonded  	<br />
