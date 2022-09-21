@@ -1,0 +1,221 @@
+<ForceField>
+ <Info>
+ <Reference> UPDATE-PRIOR-TO-DISTRIBUTION </Reference>
+ </Info>
+ <AtomTypes>
+  <Type name="1" class="C_bnz" element="C" mass="12.01060"/>
+  <Type name="2" class="H_bnz" element="H" mass="1.007947"/>
+ </AtomTypes>
+ <Residues>
+  <Residue name="bnz">
+   <Atom name="C1" type="1"/>
+   <Atom name="C2" type="1"/>
+   <Atom name="C3" type="1"/>
+   <Atom name="C4" type="1"/>
+   <Atom name="C5" type="1"/>
+   <Atom name="C6" type="1"/>
+   <Atom name="H1" type="2"/>
+   <Atom name="H2" type="2"/>
+   <Atom name="H3" type="2"/>
+   <Atom name="H4" type="2"/>
+   <Atom name="H5" type="2"/>
+   <Atom name="H6" type="2"/>
+
+   <Bond from="0" to="1"/>
+   <Bond from="1" to="2"/>
+   <Bond from="2" to="3"/>
+   <Bond from="3" to="4"/>
+   <Bond from="4" to="5"/>
+   <Bond from="5" to="0"/>
+   <Bond from="0" to="6"/>
+   <Bond from="1" to="7"/>
+   <Bond from="2" to="8"/>
+   <Bond from="3" to="9"/>
+   <Bond from="4" to="10"/>
+   <Bond from="5" to="11"/>
+  </Residue>
+ </Residues>
+
+<!--
+-->
+Bonded benzene parameters from https://pubs.acs.org/doi/pdf/10.1021/acs.jctc.5b00642
+ <HarmonicBondForce>
+  <Bond class1="C_bnz" class2="C_bnz" length="0.1399" k="3.0996e5"/>
+  <Bond class1="C_bnz" class2="H_bnz" length="0.1093" k="3.3175e5"/>
+ </HarmonicBondForce>
+
+ <HarmonicAngleForce>
+  <Angle class1="C_bnz" class2="C_bnz" class3="C_bnz" angle="2.09439" k="604.9"/>
+  <Angle class1="C_bnz" class2="C_bnz" class3="H_bnz" angle="2.09439" k="328.4"/>
+ </HarmonicAngleForce>
+ <CustomTorsionForce energy="scale*k*(abs(theta)-dihedral)^2">
+  <GlobalParameter name="scale" defaultValue="0.5"/>
+  <PerTorsionParameter name="k"/>
+  <PerTorsionParameter name="dihedral"/>
+  <Proper class1="C_bnz" class2="C_bnz" class3="C_bnz" class4="C_bnz" k="74.8" dihedral="0.0"/>
+  <Proper class1="H_bnz" class2="C_bnz" class3="C_bnz" class4="H_bnz" k="34.1" dihedral="0.0"/>
+  <Proper class1="C_bnz" class2="C_bnz" class3="C_bnz" class4="H_bnz" k="64.1" dihedral="3.14159"/>
+  <Improper class1="C_bnz" class2="C_bnz" class3="C_bnz" class4="H_bnz" k="77.4" dihedral="0.0"/>
+ </CustomTorsionForce>
+
+<!--
+MASTIFF parameters
+     energy="(A*K2*exBr - Adi*(f6*C6/(r^6) + f8*C8/(r^8) + f10*C10/(r^10) + f12*C12/(r^12)) - Elrc);
+     -->
+
+<CustomAnisotropicNonbondedForce bondCutoff="5"
+     energy="(A*K2*exBr - Adi*(f6*C6/(r^6) + f8*C8/(r^8) + f10*C10/(r^10) + f12*C12/(r^12)) - Elrc);
+    A=Aex-Ael-Ain-Adh;
+    ;
+    Aex=(Aexch1*Aexch2*Aexch1_sph*Aexch2_sph);
+    Aexch1_sph= 1 + aexch_y101*y10_1 + aexch_y201*y20_1 + aexch_y22c1*y22c_1;
+    Aexch2_sph= 1 + aexch_y102*y10_2 + aexch_y202*y20_2 + aexch_y22c2*y22c_2;
+    ;
+    Ael=(Aelec1*Aelec2*Aelec1_sph*Aelec2_sph);
+    Aelec1_sph= 1 + aelec_y101*y10_1 + aelec_y201*y20_1 + aelec_y22c1*y22c_1;
+    Aelec2_sph= 1 + aelec_y102*y10_2 + aelec_y202*y20_2 + aelec_y22c2*y22c_2;
+    ;
+    Ain=(Aind1*Aind2*Aind1_sph*Aind2_sph);
+    Aind1_sph= 1 + aind_y101*y10_1 + aind_y201*y20_1 + aind_y22c1*y22c_1;
+    Aind2_sph= 1 + aind_y102*y10_2 + aind_y202*y20_2 + aind_y22c2*y22c_2;
+    ;
+    Adh=(Adhf1*Adhf2*Adhf1_sph*Adhf2_sph);
+    Adhf1_sph= 1 + adhf_y101*y10_1 + adhf_y201*y20_1 + adhf_y22c1*y22c_1;
+    Adhf2_sph= 1 + adhf_y102*y10_2 + adhf_y202*y20_2 + adhf_y22c2*y22c_2;
+    ;
+    Adi=(Adisp1*Adisp2*Adisp1_sph*Adisp2_sph);
+    Adisp1_sph= 1 + adisp_y101*y10_1 + adisp_y201*y20_1 + adisp_y22c1*y22c_1;
+    Adisp2_sph= 1 + adisp_y102*y10_2 + adisp_y202*y20_2 + adisp_y22c2*y22c_2;
+    ;
+    Elrc = - Adisp1*Adisp2*C6/(r^6);
+    ;
+    K2=(Br^2)/3 + Br + 1;
+    f12 = f10 - exX*( (1/39916800)*(X^11)*(1 + X/12) );
+    f10 = f8 - exX*( (1/362880)*(X^9)*(1 + X/10 ) );
+    f8 = f6 - exX*( (1/5040)*(X^7)*(1 + X/8 ) );
+    f6 = 1 - exX*(1 + X * (1 + (1/2)*X*(1 + (1/3)*X*(1 + (1/4)*X*(1 + (1/5)*X*(1 + (1/6)*X ) ) )  ) ) );
+    exX = exp(-X);
+    X = Br - r * ( 2*(B^2)*r + 3*B )/(Br^2 + 3*Br + 3) ;
+    exBr = exp(-Br);
+    y10_1 = cos(theta1);
+    y10_2 = cos(theta2);
+    y20_1=0.5*(3*cos(theta1)^2 - 1);
+    y20_2=0.5*(3*cos(theta2)^2 - 1);
+    y22c_1 = sqrt(0.75)*sin(theta1)^2*cos(2*phi1);
+    y22c_2 = sqrt(0.75)*sin(theta2)^2*cos(2*phi2);
+    Br = B*r;
+    B=sqrt(Bexp1*Bexp2);
+    ;
+    C6=(C61*C62); C8=(C81*C82); C10=(C101*C102); C12=(C121*C122)">
+  <GlobalParameter name="sigma" defaultValue="0.3"/>
+  <PerParticleParameter name="Aexch"/>
+  <PerParticleParameter name="aexch_y10"/>
+  <PerParticleParameter name="aexch_y20"/>
+  <PerParticleParameter name="aexch_y22c"/>
+  <PerParticleParameter name="Aelec"/>
+  <PerParticleParameter name="aelec_y10"/>
+  <PerParticleParameter name="aelec_y20"/>
+  <PerParticleParameter name="aelec_y22c"/>
+  <PerParticleParameter name="Aind"/>
+  <PerParticleParameter name="aind_y10"/>
+  <PerParticleParameter name="aind_y20"/>
+  <PerParticleParameter name="aind_y22c"/>
+  <PerParticleParameter name="Adhf"/>
+  <PerParticleParameter name="adhf_y10"/>
+  <PerParticleParameter name="adhf_y20"/>
+  <PerParticleParameter name="adhf_y22c"/>
+  <PerParticleParameter name="Adisp"/>
+  <PerParticleParameter name="adisp_y10"/>
+  <PerParticleParameter name="adisp_y20"/>
+  <PerParticleParameter name="adisp_y22c"/>
+  <PerParticleParameter name="Bexp"/>
+  <PerParticleParameter name="C6"/>
+  <PerParticleParameter name="C8"/>
+  <PerParticleParameter name="C10"/>
+  <PerParticleParameter name="C12"/>
+
+  <Atom class="H_bnz" AtomZ="C_bnz" AxisType="ZOnly"
+Aexch="1.693455e+01" aexch_y10="-1.000000e+00" aexch_y20="-2.833412e-01" aexch_y22c="0.000000e+00"
+Aelec="1.619671e+01" aelec_y10="1.899939e-01" aelec_y20="2.885140e-02" aelec_y22c="0.000000e+00"
+Aind="1.920598e+01" aind_y10="1.000000e+00" aind_y20="6.079018e-01" aind_y22c="0.000000e+00"
+Adhf="3.229857e+00" adhf_y10="-1.000000e+00" adhf_y20="1.000000e+00" adhf_y22c="0.000000e+00"
+Adisp="8.037373e-01" adisp_y10="-6.913503e-02" adisp_y20="7.492364e-02" adisp_y22c="0.000000e+00"
+Bexp="4.316454e+01" C6="1.137715e-02" C8="2.606985e-03" C10="7.067724e-04" C12="0.000000e+00"/>
+  <Atom class="C_bnz" AtomZ="H_bnz" AtomX="C_bnz" AxisType="ZThenX"
+Aexch="8.622564e+01" aexch_y10="8.294600e-01" aexch_y20="7.720117e-03" aexch_y22c="-8.290971e-01"
+Aelec="5.073426e+01" aelec_y10="5.800580e-01" aelec_y20="-1.046648e-01" aelec_y22c="-8.090135e-01"
+Aind="6.887823e+00" aind_y10="-1.000000e+00" aind_y20="1.997880e-01" aind_y22c="8.982397e-02"
+Adhf="2.776749e+01" adhf_y10="1.000000e+00" adhf_y20="5.893876e-01" adhf_y22c="-8.080196e-01"
+Adisp="1.010477e+00" adisp_y10="3.037851e-01" adisp_y20="1.578160e-02" adisp_y22c="-2.329704e-01"
+Bexp="3.696344e+01" C6="4.035857e-02" C8="8.259236e-03" C10="2.108666e-03" C12="4.400020e-04"/>
+</CustomAnisotropicNonbondedForce>
+
+<CustomNonbondedForce bondCutoff="5"
+     energy="Elrc;
+    Elrc = - Adisp1*Adisp2*C6/(r^6);
+    ;
+    C6=(C61*C62); C8=(C81*C82); C10=(C101*C102); C12=(C121*C122)">
+  <PerParticleParameter name="Adisp"/>
+  <PerParticleParameter name="C6"/>
+
+  <Atom class="H_bnz" Adisp="8.037373e-01" C6="1.137715e-02" /> 
+  <Atom class="C_bnz" Adisp="1.010477e+00" C6="4.035857e-02" />
+
+</CustomNonbondedForce>
+<!--
+-->
+
+<!--
+-->
+<AmoebaMultipoleForce direct11Scale="1.0" direct12Scale="1.0" direct13Scale="1.0" direct14Scale="1.0" mpole12Scale="1.0" mpole13Scale="0.0" mpole14Scale="0.4" mpole15Scale="0.8" mutual11Scale="1.0" mutual12Scale="1.0" mutual13Scale="1.0" mutual14Scale="1.0" polar12Scale="0.0" polar13Scale="0.0" polar14Intra="0.5" polar14Scale="1.0" polar15Scale="1.0">
+
+  <Multipole type="1" kz="2" kx="1" c0="-0.108541" d1="0" d2="0" d3="-0.00331456" q11="3.14863e-05" q21="0" q22="-0.000119386" q31="0" q32="0" q33="8.78997e-05" />
+<Multipole type="2" kz="1" kx="0" c0="0.108541" d1="0" d2="0" d3="-0.00182867" q11="0" q21="0" q22="-0" q31="0" q32="0" q33="0" />
+
+  <Polarize type="1" polarizability="7.77e-04" thole="0.39" pgrp1="2" pgrp2="1"/>
+  <Polarize type="2" polarizability="1.72e-04" thole="0.39" pgrp1="1" pgrp2="2"/>
+ </AmoebaMultipoleForce>
+
+<CustomManyParticleForce particlesPerSet="3" permutationMode="SinglePermutation"
+    bondCutoff="5" energy=
+    "C9eff*f3_12*f3_23*f3_13*(1+3*cos(theta1)*cos(theta2)*cos(theta3))/(r12*r13*r23)^3;
+      C9eff=(C91*C92*C93)^(1/3)*scale;
+      f3_12 = 1 - exX12*(1 + X12 * (1 + (1/2)*X12*(1 + (1/3)*X12  ) ) );
+      exX12 = exp(-X12);
+      X12 = Br12 - r12 * ( 2*(B12^2)*r12 + 3*B12 )/(Br12^2 + 3*Br12 + 3) ;
+      Br12 = B12*r12;
+      B12=sqrt(Bexp1*Bexp2);
+      ;
+      f3_13 = 1 - exX13*(1 + X13 * (1 + (1/2)*X13*(1 + (1/3)*X13  ) ) );
+      exX13 = exp(-X13);
+      X13 = Br13 - r13 * ( 2*(B13^2)*r13 + 3*B13 )/(Br13^2 + 3*Br13 + 3) ;
+      Br13 = B13*r13;
+      B13=sqrt(Bexp1*Bexp3);
+      ;
+      f3_23 = 1 - exX23*(1 + X23 * (1 + (1/2)*X23*(1 + (1/3)*X23  ) ) );
+      exX23 = exp(-X23);
+      X23 = Br23 - r23 * ( 2*(B23^2)*r23 + 3*B23 )/(Br23^2 + 3*Br23 + 3) ;
+      Br23 = B23*r23;
+      B23=sqrt(Bexp2*Bexp3);
+      ;
+      ;
+      theta1=angle(p1,p2,p3);
+      theta2=angle(p2,p3,p1);
+      theta3=angle(p3,p1,p2);
+      r12=distance(p1,p2);
+      r13=distance(p1,p3);
+      r23=distance(p2,p3);">
+
+      <TypeFilter index="0" types="1,2"/>
+      <TypeFilter index="1" types="1,2"/>
+      <TypeFilter index="2" types="1,2"/>
+
+     <GlobalParameter name="scale" defaultValue="1.0"/>
+     <PerParticleParameter name="C9"/>
+     <PerParticleParameter name="Bexp"/>
+     <Atom class="C_bnz" Bexp="3.696344e+01" C9="1.42866E-06" filterType="1"/>
+     <Atom class="H_bnz" Bexp="4.316454e+01" C9="3.049E-08" filterType="2"/>
+
+ </CustomManyParticleForce>
+
+</ForceField>
