@@ -1,7 +1,7 @@
 Custom Anisotropic Nonbonded Force Plugin
 Plugin for OpenMM (v7.1)  
 Tesia Janicki  
-cr. 5.12.2017 ed. 5.10.2018  
+cr. 5.12.2017 ed. 9.21.2022 
 components borrowed from existing OpenMM forces to ensure smooth integration
 ---
 **Overview** <br />
@@ -13,16 +13,11 @@ Figure 1: Depiction of local coordinate systems for atomic anisotropy definition
 I. openmm_can  	<br />									
  A. openmmcustomanisotropicnonbonded  	<br />
    1. openmmapi									
-       * include  									
-       * src									
    2. platforms									
-       * cuda	*in development*						
+       * cuda
        * reference				
    3. python									
    4. serialization									
-       * include									
-       * src									
-       * tests									
 ---
 **Necessary Software for Installation**
  1. OpenMM 7.1 (preferred); this plugin has not been tested on earlier versions	
