@@ -1,7 +1,11 @@
 Custom Anisotropic Nonbonded Force Plugin
 Plugin for OpenMM (v7.1)  
 Tesia Janicki  
+<<<<<<< HEAD
 cr. 5.12.2017 ed. 9.21.2022 
+=======
+cr. 5.12.2017 ed. 9.8.2022  
+>>>>>>> 881fc4c5fd002c94ea54c6b77d147c17b92403fa
 components borrowed from existing OpenMM forces to ensure smooth integration
 ---
 **Overview** <br />
