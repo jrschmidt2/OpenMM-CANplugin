@@ -4,6 +4,11 @@ Tesia Janicki
 cr. 5.12.2017 ed. 5.10.2018  
 components borrowed from existing OpenMM forces to ensure smooth integration
 ---
+**Overview** <br />
+This repository houses a plugin to incorporate user-defined force expressions which include atomic anisotropy. Atomic anisotropy is defined with respect to the local coordinate system of each atom within a pair interaction (e.g. between atoms i and j, shown in Figure 1). Where isotropic forces are defined as a function of only interatomic distance, forces incorporating atomic anisotropy require positional definitions of all atoms. For example, in addition to interatomic distance, atom j must be defined by a polar phi1 and azimuthal theta1 of atom i's coordinate system, and atom i must be defined by polar phi2 and azimuthal theta2 of atom j's coordinate system. Details on how each atom's local coordinate system is defined by the user as a function of local bonding is described in further detail below. <br />
+Figure 1: Depiction of local coordinate systems for atomic anisotropy definitions.
+<img src="https://github.com/tesiadj16/OpenMM-CANplugin/blob/master/axOrient.PNG" width = "500"> 
+---
 **Plugin Directory Framework** <br />
 I. openmm_can  	<br />									
  A. openmmcustomanisotropicnonbonded  	<br />
@@ -47,20 +52,14 @@ import canplugin as can
 **Execution Notes: General**
  1. The plugin assumes inclusion of anisotropy in force expression. These computations are not 'turned off' in the absence of anisotropic components.  Absence of angles or spherical harmonics will produce a warning which directs the user to CustomNonbondedForce for more efficient custom isotropic nonbonded expressions.
  2. Forces may be defined in terms of the pair distance (r) and the anisotropic components (listed below).  As such, these variables should not be redefined as custom variables in the force expression (e.g. theta1 only ever means the polar angle in the local coordinate system of atom1).
- 3. Anisotropy may be incorporated either as a function of angles OR as spherical harmonics.
+ 3. Anisotropy may be incorporated either as a function of angles.
 	* Angles and spherical harmonic expressions *may not* be used in the same force expression to prevent confusion. An error will be returned in this case.
 	* Angles are defined in terms of polar (phi1, phi2) and azimuthal (theta1, theta2) components for the local coordinate systems of atom1 and atom2 in a given pair interaction.
-	* Real-valued spherical harmonic expressions are more efficient than direct angle incorporation and should be used when possible. These expressions are supported up to Y(2,2) and may be invoked as variables described in the following table. Ylm expressions should not be multiplied by each other under any condition. This will return a warning, but it is ultimately up to the user to ensure the expression meets this rule. <br />
-<br />
-Table 1: Spherical Harmonics <br />
-<img src="https://github.com/tesiadj16/CAN_plugin/blob/master/spHarm.PNG" width = "500">
-<br />
-* where i = [1,2] for the ith atom in the pair interaction.
 	
  4. A given atom i is defined in terms of its index, and the indices of atoms defining the local symmetry about atom i. This document refers to the (at most) three atoms definig this symmetry as atomX, atomY, atomZ, as described in the following table: <br />
 <br />
 Table 2: Axis Definitions <br />
-<img src="https://github.com/tesiadj16/CAN_plugin/blob/master/axDef.PNG" width = "500"> 
+<img src="https://github.com/tesiadj16/OpenMM-CANplugin/blob/master/axDef.PNG" width = "500"> 
 <br />
 ** Integers in parentheses should be input for axisType when using c++ directly; in python, a script will interpret this identification automatically.
 <br />
@@ -101,7 +100,7 @@ from canplugin import CustomAnisotropicNonbondedForce
   </Residue>
  </Residues>
  <CustomAnisotropicNonbondedForce bondCutoff="5.0"
-	energy = "A*r*sin(theta1) + B1*B2" >
+	energy = "A*r*(sin(theta1)+sin(theta2)) + B1*B2" >
 	<GlobalParameter name="A" defaultValue="1.0"/>
 	<PerParticleParameter name="B" />
 	<Atom type="1" AtomZ= "2" B= "2.0" />
