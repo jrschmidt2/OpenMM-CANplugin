@@ -1,17 +1,17 @@
 Custom Anisotropic Nonbonded Force Plugin
 Plugin for OpenMM (v7.1)  
 Tesia Janicki  
-<<<<<<< HEAD
 cr. 5.12.2017 ed. 9.21.2022 
-=======
-cr. 5.12.2017 ed. 9.8.2022  
->>>>>>> 881fc4c5fd002c94ea54c6b77d147c17b92403fa
-components borrowed from existing OpenMM forces to ensure smooth integration
 ---
 **Overview** <br />
+
 This repository houses a plugin to incorporate user-defined force expressions which include atomic anisotropy. Atomic anisotropy is defined with respect to the local coordinate system of each atom within a pair interaction (e.g. between atoms i and j, shown in Figure 1). Where isotropic forces are defined as a function of only interatomic distance, forces incorporating atomic anisotropy require positional definitions of all atoms. For example, in addition to interatomic distance, atom j must be defined by a polar phi1 and azimuthal theta1 of atom i's coordinate system, and atom i must be defined by polar phi2 and azimuthal theta2 of atom j's coordinate system. Details on how each atom's local coordinate system is defined by the user as a function of local bonding is described in further detail below. <br />
-Figure 1: Depiction of local coordinate systems for atomic anisotropy definitions.
+
+
+<br />
+Figure 1: Depiction of local coordinate systems for atomic anisotropy definitions. <br />
 <img src="https://github.com/tesiadj16/OpenMM-CANplugin/blob/master/axOrient.PNG" width = "500"> 
+<br />
 ---
 **Plugin Directory Framework** <br />
 I. openmm_can  	<br />									
