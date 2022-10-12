@@ -1,120 +1,155 @@
-
 ## @private
-## cr. 5.16.17 tjanicki
-## ed. 6.1.18 tjanicki
+## append to forcefield.py script in OpenMM
 
 class CustomAnisotropicNonbondedGenerator(object):
-   """ A CustomAnisotropicNonbondedGenerator constructs a CustomAnisotropicNonbondedForce. """
+    """ A CustomAnisotropicNonbondedGenerator constructs a CustomAnisotropicNonbondedForce. """
 
-   def __init__(self,forcefield,energy,bondCutoff):
-      self.ff = forcefield
-      self.energy = energy
-      self.bondCutoff = bondCutoff
-      self.globalParams = {}
-      self.perParticleParams = []
-      self.axisXParams = []
-      self.axisYParams = []
-      self.axisZParams = []
-      self.axisTypes = []
-      self.functions = []
+    def __init__(self,forcefield,energy,bondCutoff):
+        self.ff = forcefield
+        self.energy = energy
+        self.bondCutoff = bondCutoff
+        self.globalParams = {}
+        self.perParticleParams = []
+        self.functions = []
+        self.types = []
+        self.axisParams = {}
+        self.axisTypes = ['ZThenX','Bisector','ZBisect','ThreeFold','ZOnly','NoAxisType']
 
-   @staticmethod
-   def setAxisType(kIndices):
-      kIndicesLen = len(kIndices)
-      if (kIndicesLen > 2):
-         ky = kIndices[2]
-      else:
-         ky = -1
-      if (kIndicesLen > 1):
-         kx = kIndices[1]
-      else:
-         kx = -1
-      if (kIndicesLen > 0):
-         kz = kIndices[0]
-      else:
-         kz = -1
-      while(len(kIndices) < 3):
-         kIndices.append(-1)
-
-      axisType = can.CustomAnisotropicNonbondedForce.ZThenX
-      if (kz == -1):
-         axisType = can.CustomAnisotropicNonbondedForce.NoAxisType
-      if(kz != -1 and kx == -1):
-         axisType = can.CustomAnisotropicNonbondedForce.ZOnly
-      if(kz != -1 and ky != -1):
-         axisType = can.CustomAnisotropicNonbondedForce.Bisector
-      if(kz != -1 and ky != -1):
-         axisType = can.CustomAnisotropicNonbondedForce.ZBisect
-      if( kz != -1 and kx != -1 and ky != -1):
-         axisType = can.CustomAnisotropicNonbondedForce.Threefold
-
-      kIndices[0] = abs(kz)
-      kIndices[1] = abs(kx)
-      kIndices[2] = abs(ky)
-
-      return axisType
-
-   @staticmethod
-   def parseElement(element, ff):
-      generator = CustomAnisotropicNonbondedGenerator(ff, element.attrib['energy'], int(element.attrib['bondCutoff']))
-      ff.registerGenerator(generator)
+    @staticmethod
+    def parseElement(element, ff):
+        existing = [f for f in ff._forces if isinstance(f, CustomAnisotropicNonbondedGenerator)]
+        if not existing:
+            generator = CustomAnisotropicNonbondedGenerator(ff, element.attrib['energy'], int(element.attrib['bondCutoff']))
+            ff.registerGenerator(generator)
+            for param in element.findall('GlobalParameter'):
+                generator.globalParams[param.attrib['name']] = float(param.attrib['defaultValue'])
+            for param in element.findall('PerParticleParameter'):
+                generator.perParticleParams.append(param.attrib['name'])
+        else:
+            # Avoid edge case with multipldefinitions of CAN tags
+            print('Existing!')
+            generator = existing[0]
       
-      for param in element.findall('GlobalParameter'):
-         generator.globalParams[param.attrib['name']] = float(param.attrib['defaultValue'])
-      for param in element.findall('PerParticleParameter'):
-         generator.perParticleParams.append(param.attrib['name'])
-      for atom in element.findall('Atom'):
-         types = ff._findAtomTypes(atom.attrib, 1)
-         if None not in types:
-	    kIndices = []
-            kStrings = ['AtomZ','AtomX','AtomY' ]
-            for kString in kStrings:
-               try:
-                  if (atom.attrib[kString]):
-                     kIndices.append(int(atom.attrib[kString]))
-               except:
-		     pass
-	    generator.axisTypes.append(CustomAnisotropicNonbondedGenerator.setAxisType(kIndices))
-	    generator.axisZParams.append(kIndices[0])
-	    generator.axisXParams.append(kIndices[1])
-	    generator.axisYParams.append(kIndices[2])
-      generator.params = ForceField._AtomTypeParameters(ff, 'CustomAnisotropicNonbondedForce', 'Atom', generator.perParticleParams)
-      generator.params.parseDefinitions(element)
-      generator.functions += _parseFunctions(element)
+        allAtoms = element.findall('Atom')
+        kStrings = ['AtomZ','AtomX','AtomY']
+        axisTypes = generator.axisTypes
+        for atom in allAtoms:
+            # Prevent user from entering parameters for non-existent atom
+            # types/classes
+            atomType = ff._findAtomTypes(atom.attrib, 1)[0]
+            if atomType == None:
+                error = 'Unrecognized atom {} "{}" declared in CustomAnisotropicNonbondedForce'
+                if 'type' in atom.attrib:
+                    raise AssertionError(error.format('type', atom.attrib['type']))
+                else:
+                    raise AssertionError(error.format('class', atom.attrib['class']))
+            # Prevent user from defining an atom type/class multiple times
+            if atomType in generator.types:
+                error = 'Multiple parameter definitions given for {}"{}" in CustomAnisotropicNonbondedForce'
+                if type(atomType) == list:
+                    raise AssertionError(error.format("atom type=",atomType[0]))
+                else:
+                    atomClass = [key for key in ff._atomClasses 
+                            if ff._atomClasses[key] == atomType]
+                    raise AssertionError(error.format("atom class=",atomClass[0]))
+            generator.types.append(atomType)
 
-   def createForce(self, sys, data, nonbondedMethod, nonbondedCutoff, args):
-      methodMap = {NoCutoff:can.CustomAnisotropicNonbondedForce.NoCutoff,
+        generator.params = ForceField._AtomTypeParameters(ff, 'CustomAnisotropicNonbondedForce', 'Atom', generator.perParticleParams)
+        generator.params.parseDefinitions(element)
+        generator.functions += _parseFunctions(element)
+
+    @staticmethod
+    def getBondedParticleSets(sys, data):
+
+        bondedParticleSets = [set() for i in range(len(data.atoms))]
+        bondIndices = _findBondsForExclusions(data, sys)
+        for atom1, atom2 in bondIndices:
+            bondedParticleSets[atom1].add(atom2)
+            bondedParticleSets[atom2].add(atom1)
+        return bondedParticleSets
+
+    def createForce(self, sys, data, nonbondedMethod, nonbondedCutoff, args):
+        #force parameters
+        methodMap = {NoCutoff:can.CustomAnisotropicNonbondedForce.NoCutoff,
                    CutoffNonPeriodic:can.CustomAnisotropicNonbondedForce.CutoffNonPeriodic,
                    CutoffPeriodic:can.CustomAnisotropicNonbondedForce.CutoffPeriodic}
-      if nonbondedMethod not in methodMap:
-         raise ValueError('Illegal nonbonded method for CustomAnisotropicNonbondedForce')
-      force = can.CustomAnisotropicNonbondedForce(self.energy)
-      for param in self.globalParams:
-         force.addGlobalParameter(param, self.globalParams[param])
-      for param in self.perParticleParams:
-         force.addPerParticleParameter(param)
-      _createFunctions(force, self.functions)
-      for atom in data.atoms:
-	 values = self.params.getAtomParameters(atom, data)
-	 idx = int(data.atomType[atom])-1
-	 atomX = 0
-	 atomY = 0
-	 atomZ = 0
-	 atomXi = self.axisXParams[idx]
-	 atomYi = self.axisYParams[idx]
-	 atomZi = self.axisZParams[idx]
-	 if atomXi > atomX: atomX = atomXi
-	 if atomYi > atomY: atomY = atomYi
-	 if atomZi > atomZ: atomZ = atomZi
-	 axisType = self.axisTypes[idx]        
-         force.addParticle(values,axisType,atomX,atomY,atomZ)
+        if nonbondedMethod not in methodMap:
+            raise ValueError('Illegal nonbonded method for CustomAnisotropicNonbondedForce')
+        force = can.CustomAnisotropicNonbondedForce(self.energy)
+        for param in self.globalParams:
+            force.addGlobalParameter(param, self.globalParams[param])
+        for param in self.perParticleParams:
+            force.addPerParticleParameter(param)
+        _createFunctions(force, self.functions)
 
-      force.setNonbondedMethod(methodMap[nonbondedMethod])
-      force.setCutoffDistance(nonbondedCutoff)
-      bondIndices = _findBondsForExclusions(data, sys)
-      force.createExclusionsFromBonds(bondIndices, self.bondCutoff)
-      sys.addForce(force)
+        #identify 1-2 and 1-3 bonded particles (Amoeba code)
+        #1-2
+
+        bonded12ParticleSets = CustomAnisotropicNonbondedGenerator.getBondedParticleSets(sys,data)
+        #1-3
+        bonded13ParticleSets = []
+        for i in range(len(data.atoms)):
+            bonded13Set = set()
+            bonded12ParticleSet = bonded12ParticleSets[i]
+            #remove atoms appearing in 1-2 set from 1-3 set
+            for j in bonded12ParticleSet:
+                bonded13Set = bonded13Set.union(bonded12ParticleSets[j])
+            bonded13Set -= bonded12ParticleSet
+            #remove self from 1-3 set
+            selfSet = set()
+            selfSet.add(i)
+            bonded13Set -= selfSet
+            bonded13Set = set(sorted(bonded13Set))
+            bonded13ParticleSets.append(bonded13Set)
+        #convert atom(XiYiZi) type to atom(XYZ) index
+        for (idx,atom) in enumerate(data.atoms):
+            values = self.params.getAtomParameters(atom, data)
+            axisInfo = self.params.getExtraParameters(atom, data)
+
+            # Map axisInfo (listed in terms of ether atom types or classes) to atom
+            # *indices* of neighboring atoms based on the following criteria:
+            #   1. Each axis is assigned to a unique atom index
+            #   2. Z-axis is mapped first, followed by X-axis and then Y-axis
+            #   3. When multiple bonded atom indices are of the correct atom
+            #      type/class, map to the first available index
+            #   4. (For now) only consider 1-2 bonded interactions
+            #   5. Raise an error if no suitable atom index is found for a
+            #      particular axis
+            axisLabels = ['AtomZ','AtomX','AtomY'] 
+            axisAtomTypes = [axisInfo[i] if i in axisInfo else None for i in axisLabels ]
+            bondedAtomIndices=list(bonded12ParticleSets[idx])
+            bondedAtomTypes = [data.atomType[data.atoms[i]] for i in bondedAtomIndices]
+            iAtomAxis = []
+            for iax,axisAtom in enumerate(axisAtomTypes):
+                if axisAtom == None: 
+                    iAtomAxis.append(0)
+                    continue
+                elif axisAtom in bondedAtomTypes:
+                    iAtom = bondedAtomTypes.index(axisAtom)
+                elif axisAtom in self.ff._atomClasses:
+                    for atomType in self.ff._atomClasses[axisAtom]:
+                        if atomType in bondedAtomTypes:
+                            iAtom = bondedAtomTypes.index(atomType)
+                            break
+                    else:
+                        error = """Tried to define the {}-axis for atom {} in CustomAnisotropicNonbondedForce, 
+                        but no 1-2 bonded atoms of class '{}' exist with which to define the axis"""
+                        raise ValueError(error.format(axisLabels[iax][-1],atom,axisAtom))
+                else:
+                    error = """Tried to define the {}-axis for atom {} in CustomAnisotropicNonbondedForce, 
+                    but no 1-2 bonded atoms of type '{}' exist with which to define the axis"""
+                    raise ValueError(error.format(axisLabels[iax][-1],atom,axisAtom))
+                iAtomAxis.append(bondedAtomIndices.pop(iAtom))
+                bondedAtomTypes.pop(iAtom)
+            axisType = self.axisTypes.index(axisInfo['AxisType'])
+            force.addParticle(values,axisType,iAtomAxis[1],iAtomAxis[2],iAtomAxis[0])
+        force.setNonbondedMethod(methodMap[nonbondedMethod])
+        force.setCutoffDistance(nonbondedCutoff)
+        sys.addForce(force)
+        bondIndices = _findBondsForExclusions(data, sys)
+        force.createExclusionsFromBonds(bondIndices, self.bondCutoff)
 
 parsers["CustomAnisotropicNonbondedForce"] = CustomAnisotropicNonbondedGenerator.parseElement
 
 #======================================================================================================================
+

@@ -1,50 +1,42 @@
-#ifndef OPENMM_CUSTOMANISOTROPICNONBONDEDFORCE_H_
-#define OPENMM_CUSTOMANISOTROPICNONBONDEDFORCE_H_
+#ifndef OPENMM_CANFORCE_H_
+#define OPENMM_CANFORCE_H_
 
-/* -------------------------------------------------------------------------- *
- *                                   OpenMM                                   *
- * -------------------------------------------------------------------------- *
- * This is part of the OpenMM molecular simulation toolkit originating from   *
- * Simbios, the NIH National Center for Physics-Based Simulation of           *
- * Biological Structures at Stanford, funded under the NIH Roadmap for        *
- * Medical Research, grant U54 GM072970. See https://simtk.org.               *
- *                                                                            *
- * Portions copyright (c) 2008-2016 Stanford University and the Authors.      *
- * Authors: Peter Eastman                                                     *
- * Contributors:                                                              *
- *                                                                            *
- * Permission is hereby granted, free of charge, to any person obtaining a    *
- * copy of this software and associated documentation files (the "Software"), *
- * to deal in the Software without restriction, including without limitation  *
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,   *
- * and/or sell copies of the Software, and to permit persons to whom the      *
- * Software is furnished to do so, subject to the following conditions:       *
- *                                                                            *
- * The above copyright notice and this permission notice shall be included in *
- * all copies or substantial portions of the Software.                        *
- *                                                                            *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR *
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   *
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL    *
- * THE AUTHORS, CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,    *
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR      *
- * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE  *
- * USE OR OTHER DEALINGS IN THE SOFTWARE.                                     *
- * -------------------------------------------------------------------------- */
-
-/*------------------------------------------------------------------------------*
- * The following adaptations were made to suit CustomAnisotropicNonbondedPlugin *
- *										*
- * axisType, atomX, atomY, atomZ parameters added to addParticle		*								
- * axisType, atomX, atomY, atomZ parameters added to setParticleParameters	*								
- * axisType, atomX, atomY, atomZ parameters added to getParticleParameters	*								
- * axisType, atomX, atomY, atomZ parameters added to class ParticleInfo		*								
- *										*
- * public axisTypes(ZthenX,Bisector,ZBisect,Threefold,ZOnly,NoAxisType) added	*
- *										*
- * Last Edit 07/2018 tjanicki							*
- * -----------------------------------------------------------------------------*/
-
+/*--------------------------------------------------------------------*
+*                   OpenMM CustomAnisotropicNonbondedPlugin           *
+*---------------------------------------------------------------------*
+*                                                                     *
+* This is part of the OpenMM molecular simulation toolkit originating *
+* from Simbios, the NIH National Center for Physics-Based Simulation  *
+* of Biological Structures at Stanford, funded under the NIH Roadmap  *
+* for Medical Research, grant U54 GM072970. See https://simtk.org.    *
+*                                                                     *
+* Portions copyright (c) 2014-2021 Stanford University and the        *
+* Authors.                                                            *
+*                                                                     *
+* Authors: Peter Eastman                                              *
+*                                                                     *
+* Contributors: Tesia D. Janicki, Mary J. Van Vleet                   *
+*                                                                     *
+* Permission is hereby granted, free of charge, to any person         *
+* obtaining a copy of this software and associated documentation      *
+* files (the "Software"), to deal in the Software without restriction,*
+* including without limitation the rights to use, copy, modify, merge,*
+* publish, distribute, sublicense, and/or sell copies of the Software,*
+* and to permit persons to whom the Software is furnished to do so,   *
+* subject to the following conditions:                                *
+*                                                                     * 
+* The above copyright notice and this permission notice shall be      *
+* included in all copies or substantial portions of the Software.     *
+*                                                                     *
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,     *
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF  *
+* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND               *
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS, CONTRIBUTORS OR     *
+* COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER         *
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,     *
+* ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE  *
+* OR OTHER DEALINGS IN THE SOFTWARE.                                  *
+*---------------------------------------------------------------------*/
 
 
 #include "openmm/TabulatedFunction.h"
@@ -60,7 +52,7 @@
 namespace CustomAnisotropicNonbondedPlugin {
 
 
-class OPENMM_EXPORT_CUSTOMANISOTROPICNONBONDED CustomAnisotropicNonbondedForce : public OpenMM::Force {
+class OPENMM_EXPORT_CAN CustomAnisotropicNonbondedForce : public OpenMM::Force {
 public:
     /**
      * This is an enumeration of the different methods that may be used for handling long range nonbonded forces.
@@ -206,6 +198,10 @@ public:
      * less than the cutoff distance.
      */
     void setSwitchingDistance(double distance);
+    /**
+     * Set integer switch to determine whether angle expressions are used.
+     */
+    int checkAngles() const;
     /**
      * Add a new per-particle parameter that the interaction may depend on.
      *
@@ -439,10 +435,6 @@ public:
         return nonbondedMethod == CutoffPeriodic;
     }
 
-/*	int addExpression(const std::string& expression, const char  var);
-	void getExpression(int index, std::string& expression, char var);
-	void setExpression(int index, const std::string& expression, const char var);
-*/
 protected:
     OpenMM::ForceImpl* createImpl() const;
 private:
@@ -457,7 +449,6 @@ private:
     NonbondedMethod nonbondedMethod;
     double cutoffDistance, switchingDistance;
     bool useSwitchingFunction;
-    bool useYlm;
     std::string energyExpression;
     char var;
     std::vector<PerParticleParameterInfo> parameters;
@@ -478,7 +469,8 @@ public:
     std::vector<double> parameters;
     int axisType, atomX, atomY, atomZ;
     ParticleInfo() {
-	axisType = atomZ = atomX = atomY = -1;
+	axisType = 5;
+        atomZ = atomX = atomY = -1;
     }
     ParticleInfo(const std::vector<double>& parameters, int axisType, int atomX, int atomY, int atomZ) : parameters(parameters), axisType(axisType), atomX(atomX), atomY(atomY), atomZ(atomZ) {
     }
@@ -555,4 +547,4 @@ public:
 };
 } // namespace OpenMM
 
-#endif /*OPENMM_CUSTOMANISOTROPICNONBONDEDFORCE_H_*/
+#endif /*OPENMM_CANFORCE_H_*/

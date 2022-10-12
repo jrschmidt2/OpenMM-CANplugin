@@ -1,22 +1,4 @@
-#ifdef WIN32
-  #define _USE_MATH_DEFINES // Needed to get M_PI
-#endif
-#include "sfmt/SFMT.h"
-#include "openmm/internal/AssertionUtilities.h"
-#include "openmm/Context.h"
-#include "openmm/Platform.h"
-#include "openmm/System.h"
-#include "openmm/VerletIntegrator.h"
-#include "CustomAnisotropicNonbondedForce.h"
-#include "openmm/CustomHbondForce.h"
-#include "openmm/CustomNonbondedForce.h"
-#include <cmath>
-#include <iostream>
-#include <set>
-#include <vector>
-#include <string>
-#include <cstring>
-#include <chrono>
+#include "CANReferenceTest.h"
 
 using namespace CustomAnisotropicNonbondedPlugin;
 using namespace OpenMM;
@@ -27,7 +9,7 @@ using namespace std::chrono;
 
 extern "C" OPENMM_EXPORT void registerCustomAnisotropicNonbondedReferenceKernelFactories();
 
-const double TOL = 1e-5;
+const double TOL = 1e-10;
 
 void test_novar() {
 	cout << "TEST NOVAR" << endl;
@@ -113,10 +95,10 @@ void test_der() {
 	//state & calculate
 	State state = context.getState(State::Forces | State::Energy);
 	const vector<Vec3>& forces = state.getForces();
-	double refforce = -0.3/(2*2*2*2);
+	double refforce = -0.3/(2.0*2.0*2.0*2.0);
 	ASSERT_EQUAL_VEC(Vec3(0, 0, -refforce), forces[0], TOL);
 	ASSERT_EQUAL_VEC(Vec3(0, 0, refforce), forces[1], TOL);
-	ASSERT_EQUAL_TOL((-0.1/8), state.getPotentialEnergy(), TOL);
+	ASSERT_EQUAL_TOL((-0.1/8.0), state.getPotentialEnergy(), TOL);
 }
 
 
@@ -144,7 +126,7 @@ void test_cubic() {
 	double sin3 = sin(M_PI/3);
 	ASSERT_EQUAL_VEC(Vec3(-1.5, -sin3, 0), forces[0], TOL);
 	ASSERT_EQUAL_VEC(Vec3(1.5, -sin3, 0), forces[1], TOL);
-	ASSERT_EQUAL_VEC(Vec3(0, 2*sin3, 0), forces[2], TOL);
+	ASSERT_EQUAL_VEC(Vec3(0, 2.0*sin3, 0), forces[2], TOL);
 	ASSERT_EQUAL_TOL((-1.5), state.getPotentialEnergy(), TOL);
 }
 
@@ -248,10 +230,10 @@ void test_phi() {
 	context.setPositions(positions);
 	State state = context.getState(State::Forces | State::Energy);
 	const vector<Vec3>& forces = state.getForces();
-	double sin4 = sin(M_PI/4);
-	double cos4 = cos(M_PI/4);
-	ASSERT_EQUAL_VEC(Vec3(-cos4/2,-cos4/2,0), forces[0], TOL);
-	ASSERT_EQUAL_VEC(Vec3(cos4/2,-cos4/2,0),forces[1],TOL);
+	double sin4 = sin(M_PI/4.0);
+	double cos4 = cos(M_PI/4.0);
+	ASSERT_EQUAL_VEC(Vec3(-cos4/2.0,-cos4/2.0,0), forces[0], TOL);
+	ASSERT_EQUAL_VEC(Vec3(cos4/2.0,-cos4/2.0,0),forces[1],TOL);
 	ASSERT_EQUAL_TOL(sin4 ,state.getPotentialEnergy(),TOL);		
 }
 
@@ -272,15 +254,15 @@ void test_theta2() {
 	vector<Vec3> positions(3);
 	positions[0] = Vec3(0,0,0);
 	positions[1] = Vec3(1,0,0);
-	positions[2] = Vec3(0.5,sqrt(3)/2,0);
+	positions[2] = Vec3(0.5,sqrt(3.0)/2.0,0);
 	context.setPositions(positions);
 	State state = context.getState(State::Forces | State::Energy);
 	const vector<Vec3>& forces = state.getForces();
-	double sin3 = sin(M_PI/3);
+	double sin3 = sin(M_PI/3.0);
 	ASSERT_EQUAL_VEC(Vec3(-sin3*0.5,0.25, 0), forces[0], TOL);
 	ASSERT_EQUAL_VEC(Vec3(sin3*0.5,0.25, 0), forces[1], TOL);
 	ASSERT_EQUAL_VEC(Vec3(0,-0.5, 0), forces[2], TOL);
-	ASSERT_EQUAL_TOL(3.73205,state.getPotentialEnergy(),TOL);		
+	ASSERT_EQUAL_TOL(2.0*sin3+2.0,state.getPotentialEnergy(),TOL);		
 }
 void test_rtheta() {
 	cout << "TEST 4 PARTICLE R,THETA1" << endl;
@@ -306,38 +288,11 @@ void test_rtheta() {
 	context.setPositions(positions);
 	State state = context.getState(State::Forces | State::Energy);
 	const vector<Vec3>& forces = state.getForces();
-	ASSERT_EQUAL_VEC(Vec3(0,1.78885,0), forces[0], TOL);
-	ASSERT_EQUAL_VEC(Vec3(0,1.788854,0), forces[1], TOL);
-	ASSERT_EQUAL_VEC(Vec3(0,-1.78885,0.894427), forces[2], TOL);
-	ASSERT_EQUAL_VEC(Vec3(0,-1.78885,-0.894427), forces[3], TOL);
-	ASSERT_EQUAL_TOL(4.472114,state.getPotentialEnergy(),TOL);		
-}
-
-void test_angleY() {
-	cout << "TEST ANGLE & Ylm (should return error)" << endl;
-	System system;
-	system.addParticle(1.0);
-	system.addParticle(1.0);
-	system.addParticle(1.0);
-	system.addParticle(1.0);
-	VerletIntegrator integrator(0.01);
-	CustomAnisotropicNonbondedForce* forceField = new CustomAnisotropicNonbondedForce("r*sin(theta1)*y10_1");
-	forceField->addParticle(vector<double>(),4,-1,-1,1);
-	forceField->addParticle(vector<double>(),4,-1,-1,0);
-	forceField->addParticle(vector<double>(),4,-1,-1,3);
-	forceField->addParticle(vector<double>(),4,-1,-1,2);
-	system.addForce(forceField);
-	Platform& platform = Platform::getPlatformByName("Reference");
-	Context context(system, integrator, platform);
-	vector<Vec3> positions(4);
-	positions[0] = Vec3(0,0,0);
-	positions[1] = Vec3(1,0,0);
-	positions[2] = Vec3(0.5,1,-0.5);
-	positions[3] = Vec3(0.5,1,0.5);
-	context.setPositions(positions);
-	State state = context.getState(State::Forces | State::Energy);
-	const vector<Vec3>& forces = state.getForces();
-
+	ASSERT_EQUAL_VEC(Vec3(0,4.0/sqrt(5.0),0), forces[0], TOL);
+	ASSERT_EQUAL_VEC(Vec3(0,4.0/sqrt(5.0),0), forces[1], TOL);
+	ASSERT_EQUAL_VEC(Vec3(0,-4.0/sqrt(5.0),2.0/sqrt(5.0)), forces[2], TOL);
+	ASSERT_EQUAL_VEC(Vec3(0,-4.0/sqrt(5.0),-2.0/sqrt(5.0)), forces[3], TOL);
+	ASSERT_EQUAL_TOL(sqrt(1.5)*sqrt(5.0/6.0)*4.0,state.getPotentialEnergy(),TOL);		
 }
 
 void testExclusions() {
@@ -614,13 +569,6 @@ int main() {
     catch(const exception& e) {
         std::cout << "exception: " << e.what() << endl;
         return 1;
-    }
-    try {
-	test_angleY();
-    }
-    catch(const exception& e) {
-	std::cout <<"exception: " << e.what() << endl;
-	return 0;
     }
     steady_clock::time_point end = steady_clock::now();
     duration<double> timer = duration_cast<duration<double>>(end-start);

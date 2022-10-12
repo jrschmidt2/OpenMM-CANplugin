@@ -1,5 +1,41 @@
-#ifndef OPENMM_WINDOWSEXPORTCUSTOMANISOTROPICNONBONDED_H_
-#define OPENMM_WINDOWSEXPORTCUSTOMANISOTROPICNONBONDED_H_
+#ifndef OPENMM_WINDOWSEXPORTCAN_H_
+#define OPENMM_WINDOWSEXPORTCAN_H_
+/*--------------------------------------------------------------------*
+*                   OpenMM CustomAnisotropicNonbondedPlugin           *
+*---------------------------------------------------------------------*
+*                                                                     *
+* This is part of the OpenMM molecular simulation toolkit originating *
+* from Simbios, the NIH National Center for Physics-Based Simulation  *
+* of Biological Structures at Stanford, funded under the NIH Roadmap  *
+* for Medical Research, grant U54 GM072970. See https://simtk.org.    *
+*                                                                     *
+* Portions copyright (c) 2014-2021 Stanford University and the        *
+* Authors.                                                            *
+*                                                                     *
+* Authors: Peter Eastman                                              *
+*                                                                     *
+* Contributors: Tesia D. Janicki, Mary J. Van Vleet                   *
+*                                                                     *
+* Permission is hereby granted, free of charge, to any person         *
+* obtaining a copy of this software and associated documentation      *
+* files (the "Software"), to deal in the Software without restriction,*
+* including without limitation the rights to use, copy, modify, merge,*
+* publish, distribute, sublicense, and/or sell copies of the Software,*
+* and to permit persons to whom the Software is furnished to do so,   *
+* subject to the following conditions:                                *
+*                                                                     * 
+* The above copyright notice and this permission notice shall be      *
+* included in all copies or substantial portions of the Software.     *
+*                                                                     *
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,     *
+* EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF  *
+* MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND               *
+* NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS, CONTRIBUTORS OR     *
+* COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER         *
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,     *
+* ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE  *
+* OR OTHER DEALINGS IN THE SOFTWARE.                                  *
+*---------------------------------------------------------------------*/
 
 /*
  * Shared libraries are messy in Visual Studio. We have to distinguish three
@@ -12,7 +48,7 @@
  *       being compiled with the expectation of linking with the
  *       OpenMM static library (nothing special needed)
  * In the CMake script for building this library, we define one of the symbols
- *     CUSTOMANISOTROPICNONBONDED_BUILDING_{SHARED|STATIC}_LIBRARY
+ *     CAN_BUILDING_{SHARED|STATIC}_LIBRARY
  * Client code normally has no special symbol defined, in which case we'll
  * assume it wants to use the shared library. However, if the client defines
  * the symbol OPENMM_USE_STATIC_LIBRARIES we'll suppress the dllimport so
@@ -27,15 +63,15 @@
     #pragma warning(disable:4996)
     // Keep MS VC++ quiet about lack of dll export of private members.
     #pragma warning(disable:4251)
-    #if defined(CUSTOMANISOTROPICNONBONDED_BUILDING_SHARED_LIBRARY)
-        #define OPENMM_EXPORT_CUSTOMANISOTROPICNONBONDED __declspec(dllexport)
-    #elif defined(CUSTOMANISOTROPICNONBONDED_BUILDING_STATIC_LIBRARY) || defined(CUSTOMANISOTROPICNONBONDED_USE_STATIC_LIBRARIES)
-        #define OPENMM_EXPORT_CUSTOMANISOTROPICNONBONDED
+    #if defined(CAN_BUILDING_SHARED_LIBRARY)
+        #define OPENMM_EXPORT_CAN __declspec(dllexport)
+    #elif defined(CAN_BUILDING_STATIC_LIBRARY) || defined(CAN_USE_STATIC_LIBRARIES)
+        #define OPENMM_EXPORT_CAN
     #else
-        #define OPENMM_EXPORT_CUSTOMANISOTROPICNONBONDED __declspec(dllimport)   // i.e., a client of a shared library
+        #define OPENMM_EXPORT_CAN __declspec(dllimport)   // i.e., a client of a shared library
     #endif
 #else
-    #define OPENMM_EXPORT_CUSTOMANISOTROPICNONBONDED // Linux, Mac
+    #define OPENMM_EXPORT_CAN // Linux, Mac
 #endif
 
-#endif // OPENMM_WINDOWSEXPORTCUSTOMANISOTROPICNONBONDED_H_
+#endif // OPENMM_WINDOWSEXPORTCAN_H_

@@ -1,5 +1,5 @@
-#ifndef OPENMM_CANFORCEIMPL_H_
-#define OPENMM_CANFORCEIMPL_H_
+#ifndef CUDA_CUSTOMANISOTROPICNONBONDED_KERNELS_H_
+#define CUDA_CUSTOMANISOTROPICNONBONDED_KERNELS_H_
 /*--------------------------------------------------------------------*
 *                   OpenMM CustomAnisotropicNonbondedPlugin           *
 *---------------------------------------------------------------------*
@@ -36,37 +36,48 @@
 * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE  *
 * OR OTHER DEALINGS IN THE SOFTWARE.                                  *
 *---------------------------------------------------------------------*/
-#include "CustomAnisotropicNonbondedForce.h"
-#include "openmm/Kernel.h"
-#include "openmm/internal/ForceImpl.h"
-#include <utility>
-#include <map>
-#include <string>
+
+
+#include "CustomAnisotropicNonbondedKernels.h"
+#include "openmm/System.h"
+#include "openmm/kernels.h"
+#include "openmm/cuda/CudaContext.h"
+#include "openmm/cuda/CudaArray.h"
+#include "openmm/cuda/CudaNonbondedUtilities.h"
+#include "openmm/cuda/CudaParameterSet.h"
+#include "lepton/CompiledExpression.h"
+#include "lepton/CustomFunction.h"
+#include "lepton/ExpressionProgram.h"
+#include <vector>
 
 namespace CustomAnisotropicNonbondedPlugin {
-/**
- * This is the internal implementation of CustomAnisotropicNonbondedForce.
- */
-class OPENMM_EXPORT_CAN CustomAnisotropicNonbondedForceImpl : public OpenMM::ForceImpl {
+
+class CudaCalcCustomAnisotropicNonbondedForceKernel : public CalcCustomAnisotropicNonbondedForceKernel {
 public:
-    CustomAnisotropicNonbondedForceImpl(const CustomAnisotropicNonbondedForce& owner);
-    ~CustomAnisotropicNonbondedForceImpl();
-    void initialize(OpenMM::ContextImpl& context);
-    const CustomAnisotropicNonbondedForce& getOwner() const {
-        return owner;
+    CudaCalcCustomAnisotropicNonbondedForceKernel(std::string name, const OpenMM::Platform& platform, OpenMM::CudaContext& cu, const OpenMM::System& system) : CalcCustomAnisotropicNonbondedForceKernel(name, platform), hasInitializedKernel(false), cu(cu), system(system), params(NULL) {
     }
-    void updateContextState(OpenMM::ContextImpl& context) {
-    }
-    double calcForcesAndEnergy(OpenMM::ContextImpl& context, bool includeForces, bool includeEnergy, int groups);
-    std::map<std::string, double> getDefaultParameters();
-    std::vector<std::string> getKernelNames();
-    void updateParametersInContext(OpenMM::ContextImpl& context);
+    ~CudaCalcCustomAnisotropicNonbondedForceKernel();
+    void initialize(const OpenMM::System& system, const CustomAnisotropicNonbondedForce& force);
+    double execute(OpenMM::ContextImpl& context, bool includeForces, bool includeEnergy);
+    void copyParametersToContext(OpenMM::ContextImpl& context, const CustomAnisotropicNonbondedForce& force);
 private:
-    const CustomAnisotropicNonbondedForce& owner;
-    OpenMM::Kernel kernel;
+    class ForceInfo;
+    int numParticles;
+    int numPaddedAtoms;
+    bool hasInitializedKernel;
+    OpenMM::CudaContext& cu;
+    OpenMM::CudaParameterSet* params;
+    //OpenMM::CudaArray interactionGroupData;
+    OpenMM::CudaArray globals;
+    OpenMM::CudaArray exclusions, exclusionStartIdx;
+    OpenMM::CudaArray axes,kvecs;
+    std::vector<std::string> globalParamNames;
+    std::vector<float> globalParamValues;
+    std::vector<OpenMM::CudaArray> tabulatedFunctions;
+    std::vector<void*> args,axesargs;
+    const OpenMM::System& system;
+    CUfunction computeAxesKernel,mykernel;
 };
-
-} // namespace OpenMM
-
+}
 #endif
- /*OPENMM_CANFORCEIMPL_H_*/
+

@@ -13,8 +13,8 @@ add_custom_command(
 )
 
 add_custom_target(PythonInstall DEPENDS "${WRAP_FILE}")
-set(CUSTOMANISOTROPICNONBONDEDPLUGIN_HEADER_DIR "${CMAKE_SOURCE_DIR}/openmmapi/include")
-set(CUSTOMANISOTROPICNONBONDEDPLUGIN_LIBRARY_DIR "${CMAKE_BINARY_DIR}")
+set(CANPLUGIN_HEADER_DIR "${CMAKE_SOURCE_DIR}/openmmapi/include")
+set(CANPLUGIN_LIBRARY_DIR "${CMAKE_BINARY_DIR}")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/setup.py ${CMAKE_CURRENT_BINARY_DIR}/setup.py)
 add_custom_command(TARGET PythonInstall
 	COMMAND "${PYTHON_EXECUTABLE}" setup.py build

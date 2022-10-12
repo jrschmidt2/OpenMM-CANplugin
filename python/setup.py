@@ -5,11 +5,11 @@ import sys
 import platform
 
 openmm_dir = '@OPENMM_DIR@'
-customanisotropicnonbondedplugin_header_dir = '@CUSTOMANISOTROPICNONBONDEDPLUGIN_HEADER_DIR@'
-customanisotropicnonbondedplugin_library_dir = '@CUSTOMANISOTROPICNONBONDEDPLUGIN_LIBRARY_DIR@'
+customanisotropicnonbondedplugin_header_dir = '@CANPLUGIN_HEADER_DIR@'
+customanisotropicnonbondedplugin_library_dir = '@CANPLUGIN_LIBRARY_DIR@'
 
 # setup extra compile and link arguments on Mac
-extra_compile_args = []
+extra_compile_args = ['-std=c++11']
 extra_link_args = []
 
 if platform.system() == 'Darwin':

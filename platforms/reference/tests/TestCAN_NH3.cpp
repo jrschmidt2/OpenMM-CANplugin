@@ -1,23 +1,4 @@
-#ifdef WIN32
-  #define _USE_MATH_DEFINES // Needed to get M_PI
-#endif
-#include "sfmt/SFMT.h"
-#include "openmm/internal/AssertionUtilities.h"
-#include "openmm/Context.h"
-#include "openmm/Platform.h"
-#include "openmm/System.h"
-#include "openmm/VirtualSite.h"
-#include "openmm/VerletIntegrator.h"
-#include "CustomAnisotropicNonbondedForce.h"
-#include "openmm/CustomHbondForce.h"
-#include <cmath>
-#include <iostream>
-#include <set>
-#include <vector>
-#include <string>
-#include <cstring>
-#include <ctime>
-#include <chrono>
+#include "CANReferenceTest.h"
 
 using namespace CustomAnisotropicNonbondedPlugin;
 using namespace OpenMM;
@@ -26,7 +7,7 @@ using namespace std::chrono;
 
 extern "C" OPENMM_EXPORT void registerCustomAnisotropicNonbondedReferenceKernelFactories();
 
-const double TOL = 1e-10;
+const double TOL = 1e-7;
 
 void test_NH3() {
 	cout << "TEST NH3" << endl;
@@ -84,29 +65,16 @@ void test_NH3() {
 	H_params[23]=4.358778e-07;
 	H_params[24]=0.000000e+00;
 	vector<Vec3> positions(10); //with offsites -for hbond
-	positions[0] = Vec3(0.000,	0.000,	0.000); //N
-	positions[1] = Vec3(0.000,	-0.936,	-0.382);//H
-	positions[2] = Vec3(0.812,	0.469,	-0.382);//H
-	positions[3] = Vec3(-0.812,	0.469,	-0.382);//H
-	positions[4] = Vec3(-0.038,	-3.211,	1.996); //N
-	positions[5] = Vec3(0.893,	-2.919,	1.724); //H
-	positions[6] = Vec3(-0.077,	-3.153,	3.006); //H
-	positions[7] = Vec3(-0.677,	-2.512,	1.640); //H
-	positions[8] = Vec3(0.000,	0.000666667, -0.382);//x
-	positions[9] = Vec3(0.0463333,	-2.86133,	2.12333); //x
-
-	vector<Vec3> positions1(10); //without offsites -for CAN
-	positions1[0] = Vec3(0.000,	0.000,	0.000); //N
-	positions1[1] = Vec3(0.000,	-0.936,	-0.382);//H
-	positions1[2] = Vec3(0.812,	0.469,	-0.382);//H
-	positions1[3] = Vec3(-0.812,	0.469,	-0.382);//H
-	positions1[4] = Vec3(-0.038,	-3.211,	1.996); //N
-	positions1[5] = Vec3(0.893,	-2.919,	1.724); //H
-	positions1[6] = Vec3(-0.077,	-3.153,	3.006); //H
-	positions1[7] = Vec3(-0.677,	-2.512,	1.640); //H
-	positions1[8] = Vec3(0.000,	0.000666667, -0.382);//x
-	positions1[9] = Vec3(0.0463333,	-2.86133,	2.12333); //x
-
+	positions[0] = Vec3(0.000,	0.000,	1.000); //N
+	positions[1] = Vec3(0.000,	-0.936,	0.382);//H
+	positions[2] = Vec3(0.812,	0.469,	0.382);//H
+	positions[3] = Vec3(-0.812,	0.469,	0.382);//H
+	positions[4] = Vec3(-0.038,	-1.211,	0.996); //N
+	positions[5] = Vec3(0.893,	-0.919,	0.724); //H
+	positions[6] = Vec3(-0.077,	-1.153,	2.006); //H
+	positions[7] = Vec3(-0.677,	-0.512,	0.640); //H
+	positions[8] = Vec3(0.000,	0.000666667, 0.382);//x
+	positions[9] = Vec3(0.0463333,	-0.86133,	1.12333); //x
 
 	steady_clock::time_point start1 = steady_clock::now();
 	//define Hbond system
@@ -124,7 +92,7 @@ void test_NH3() {
 	refsystem.setVirtualSite(8, new ThreeParticleAverageSite(1,2,3,0.333333333,0.333333333,0.333333333));
 	refsystem.setVirtualSite(9, new ThreeParticleAverageSite(5,6,7,0.333333333,0.333333333,0.333333333));
 	//define Hbond force
-	CustomHbondForce* refforceField = new CustomHbondForce("scale*(A*K2*exBr - (Adi)*(f6*C6/(r^6) + f8*C8/(r^8) + f10*C10/(r^10) + f12*C12/(r^12))); A=Aex-Ael-Ain-Adh; Aex=(Aexch1*Aexch2*Aexch1_sph*Aexch2_sph); Aexch1_sph= 1 + aexch_y101*y101 + aexch_y201*y201 + aexch_y22c1*y22c1; Aexch2_sph= 1 + aexch_y102*y102 + aexch_y202*y202 + aexch_y22c2*y22c2; Ael=(Aelec1*Aelec2*Aelec1_sph*Aelec2_sph); Aelec1_sph= 1 + aelec_y101*y101 + aelec_y201*y201 + aelec_y22c1*y22c1; Aelec2_sph= 1 + aelec_y102*y102 + aelec_y202*y202 + aelec_y22c2*y22c2; Ain=(Aind1*Aind2*Aind1_sph*Aind2_sph); Aind1_sph= 1 + aind_y101*y101 + aind_y201*y201 + aind_y22c1*y22c1; Aind2_sph= 1 + aind_y102*y102 + aind_y202*y202 + aind_y22c2*y22c2; Adh=(Adhf1*Adhf2*Adhf1_sph*Adhf2_sph); Adhf1_sph= 1 + adhf_y101*y101 + adhf_y201*y201 + adhf_y22c1*y22c1; Adhf2_sph= 1 + adhf_y102*y102 + adhf_y202*y202 + adhf_y22c2*y22c2; Adi=(Adisp1*Adisp2*Adisp1_sph*Adisp2_sph); Adisp1_sph= 1 + adisp_y101*y101 + adisp_y201*y201 + adisp_y22c1*y22c1; Adisp2_sph= 1 + adisp_y102*y102 + adisp_y202*y202 + adisp_y22c2*y22c2; K2=(Br^2)/3 + Br + 1; f12 = f10 - exX*((1/39916800)*(X^11)*(1 + X/12)); f10 = f8 - exX*((1/362880)*(X^9)*(1 + X/10)); f8 = f6 - exX*((1/5040)*(X^7)*(1 + X/8)); f6 = 1 - exX*(1 + X * (1 + (1/2)*X*(1 + (1/3)*X*(1 + (1/4)*X*(1 + (1/5)*X*(1 + (1/6)*X)))))); exX = exp(-X); X = Br - r * (2*(B^2)*r + 3*B)/(Br^2 + 3*Br + 3); exBr = exp(-Br); Br = B*r; y101 = cos(theta1); y102 = cos(theta2); y201 = 0.5*(3*cos(theta1)^2 - 1); y202 = 0.5*(3*cos(theta2)^2 - 1); y22c1 = sqrt(0.75)*sin(theta1)^2*cos(2*phi1); y22c2 = sqrt(0.75)*sin(theta2)^2*cos(2*phi2); theta1=angle(d2,d1,a1); theta2=angle(a2,a1,d1); phi1=0; phi2=0; r = distance(a1,d1); B=sqrt(Bexp1*Bexp2); C6=sqrt(C61*C62); C8=sqrt(C81*C82); C10=sqrt(C101*C102); C12=sqrt(C121*C122)");
+	CustomHbondForce* refforceField = new CustomHbondForce("scale*(A*K2*exBr - (Adi)*(f6*C6/(r^6) + f8*C8/(r^8) + f10*C10/(r^10) + f12*C12/(r^12))); A=Aex-Ael-Ain-Adh; Aex=(Aexch1*Aexch2*Aexch1_sph*Aexch2_sph); Aexch1_sph= 1 + aexch_y101*y101 + aexch_y201*y201 + aexch_y22c1*y22c1; Aexch2_sph= 1 + aexch_y102*y102 + aexch_y202*y202 + aexch_y22c2*y22c2; Ael=(Aelec1*Aelec2*Aelec1_sph*Aelec2_sph); Aelec1_sph= 1 + aelec_y101*y101 + aelec_y201*y201 + aelec_y22c1*y22c1; Aelec2_sph= 1 + aelec_y102*y102 + aelec_y202*y202 + aelec_y22c2*y22c2; Ain=(Aind1*Aind2*Aind1_sph*Aind2_sph); Aind1_sph= 1 + aind_y101*y101 + aind_y201*y201 + aind_y22c1*y22c1; Aind2_sph= 1 + aind_y102*y102 + aind_y202*y202 + aind_y22c2*y22c2; Adh=(Adhf1*Adhf2*Adhf1_sph*Adhf2_sph); Adhf1_sph= 1 + adhf_y101*y101 + adhf_y201*y201 + adhf_y22c1*y22c1; Adhf2_sph= 1 + adhf_y102*y102 + adhf_y202*y202 + adhf_y22c2*y22c2; Adi=(Adisp1*Adisp2*Adisp1_sph*Adisp2_sph); Adisp1_sph= 1 + adisp_y101*y101 + adisp_y201*y201 + adisp_y22c1*y22c1; Adisp2_sph= 1 + adisp_y102*y102 + adisp_y202*y202 + adisp_y22c2*y22c2; K2=(Br^2)/3 + Br + 1; f12 = f10 - exX*((1/39916800)*(X^11)*(1 + X/12)); f10 = f8 - exX*((1/362880)*(X^9)*(1 + X/10)); f8 = f6 - exX*((1/5040)*(X^7)*(1 + X/8)); f6 = 1 - exX*(1 + X * (1 + (1/2)*X*(1 + (1/3)*X*(1 + (1/4)*X*(1 + (1/5)*X*(1 + (1/6)*X)))))); exX = exp(-X); X = Br - r * (2*(B^2)*r + 3*B)/(Br^2 + 3*Br + 3); exBr = exp(-Br); Br = B*r; y101 = cos(theta1); y102 = cos(theta2); y201 = 0.5*(3*cos(theta1)^2 - 1); y202 = 0.5*(3*cos(theta2)^2 - 1); y22c1 = sqrt(0.75)*sin(theta1)^2*cos(2*phi1); y22c2 = sqrt(0.75)*sin(theta2)^2*cos(2*phi2); theta1=angle(d2,d1,a1); theta2=angle(a2,a1,d1); phi1=dihedral(d3,d1,d2,a1); phi2=dihedral(a3,a1,a2,d1); r = distance(a1,d1); B=sqrt(Bexp1*Bexp2); C6=sqrt(C61*C62); C8=sqrt(C81*C82); C10=sqrt(C101*C102); C12=sqrt(C121*C122)");
 	//Hbond parameters
 	refforceField->addGlobalParameter("scale", 0.5);
 	refforceField->addPerDonorParameter("Aexch1");
@@ -297,8 +265,8 @@ void test_NH3() {
 	forceField->addParticle(H_params,4,-1,-1,4); //5
 	forceField->addParticle(H_params,4,-1,-1,4); //6
 	forceField->addParticle(H_params,4,-1,-1,4); //7
-	forceField->addParticle(x_params,5,-1,-1,-1); //8
-	forceField->addParticle(x_params,5,-1,-1,-1); //9
+	forceField->addParticle(x_params,4,-1,-1,0); //8
+	forceField->addParticle(x_params,4,-1,-1,4); //9
 	forceField->addExclusion(1,0);
 	forceField->addExclusion(2,0);
 	forceField->addExclusion(3,0);
@@ -336,7 +304,7 @@ void test_NH3() {
 	VerletIntegrator integrator(0.01);
 	Platform& platform = Platform::getPlatformByName("Reference");
 	Context context(system, integrator, platform);
-	context.setPositions(positions1);
+	context.setPositions(positions);
 	steady_clock::time_point start2e = steady_clock::now();
 	State state = context.getState(State::Forces | State::Energy);
 	const vector<Vec3>& forces = state.getForces();

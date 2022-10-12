@@ -1,23 +1,4 @@
-#ifdef WIN32
-  #define _USE_MATH_DEFINES // Needed to get M_PI
-#endif
-#include "sfmt/SFMT.h"
-#include "openmm/internal/AssertionUtilities.h"
-#include "openmm/Context.h"
-#include "openmm/Platform.h"
-#include "openmm/System.h"
-#include "openmm/VirtualSite.h"
-#include "openmm/VerletIntegrator.h"
-#include "CustomAnisotropicNonbondedForce.h"
-#include "openmm/CustomHbondForce.h"
-#include <cmath>
-#include <iostream>
-#include <set>
-#include <vector>
-#include <string>
-#include <cstring>
-#include <ctime>
-#include <chrono>
+#include "CANReferenceTest.h"
 
 using namespace CustomAnisotropicNonbondedPlugin;
 using namespace OpenMM;
@@ -88,25 +69,12 @@ void test_NH3() {
 	positions[1] = Vec3(0.000,	-0.936,	-0.382);//H
 	positions[2] = Vec3(0.812,	0.469,	-0.382);//H
 	positions[3] = Vec3(-0.812,	0.469,	-0.382);//H
-	positions[4] = Vec3(-0.038,	-3.211,	1.996); //N
-	positions[5] = Vec3(0.893,	-2.919,	1.724); //H
-	positions[6] = Vec3(-0.077,	-3.153,	3.006); //H
-	positions[7] = Vec3(-0.677,	-2.512,	1.640); //H
+	positions[4] = Vec3(-0.038,	-1.211,	0.996); //N
+	positions[5] = Vec3(0.893,	-0.919,	0.724); //H
+	positions[6] = Vec3(-0.077,	-1.153,	2.006); //H
+	positions[7] = Vec3(-0.677,	-0.512,	0.640); //H
 	positions[8] = Vec3(0.000,	0.000666667, -0.382);//x
-	positions[9] = Vec3(0.0463333,	-2.86133,	2.12333); //x
-
-	vector<Vec3> positions1(10); //without offsites -for CAN
-	positions1[0] = Vec3(0.000,	0.000,	0.000); //N
-	positions1[1] = Vec3(0.000,	-0.936,	-0.382);//H
-	positions1[2] = Vec3(0.812,	0.469,	-0.382);//H
-	positions1[3] = Vec3(-0.812,	0.469,	-0.382);//H
-	positions1[4] = Vec3(-0.038,	-3.211,	1.996); //N
-	positions1[5] = Vec3(0.893,	-2.919,	1.724); //H
-	positions1[6] = Vec3(-0.077,	-3.153,	3.006); //H
-	positions1[7] = Vec3(-0.677,	-2.512,	1.640); //H
-	positions1[8] = Vec3(0.000,	0.000666667, -0.382);//x
-	positions1[9] = Vec3(0.0463333,	-2.86133,	2.12333); //x
-
+	positions[9] = Vec3(0.0463333,	-0.86133,	1.12333); //x
 
 	//define Hbond system
 	steady_clock::time_point start1 = steady_clock::now();
@@ -334,7 +302,7 @@ void test_NH3() {
 	VerletIntegrator integrator(0.01);
 	Platform& platform = Platform::getPlatformByName("Reference");
 	Context context(system, integrator, platform);
-	context.setPositions(positions1);
+	context.setPositions(positions);
 	steady_clock::time_point start2e = steady_clock::now();
 	State state = context.getState(State::Forces | State::Energy);
 	const vector<Vec3>& forces = state.getForces();

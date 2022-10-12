@@ -1,5 +1,6 @@
-#ifndef OPENMM_CANFORCEIMPL_H_
-#define OPENMM_CANFORCEIMPL_H_
+#ifndef OPENMM_CUDACUSTOMANISOTROPICNONBONDEDKERNELFACTORY_H_
+#define OPENMM_CUDACUSTOMANISOTROPICNONBONDEDKERNELFACTORY_H_
+
 /*--------------------------------------------------------------------*
 *                   OpenMM CustomAnisotropicNonbondedPlugin           *
 *---------------------------------------------------------------------*
@@ -36,37 +37,20 @@
 * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE  *
 * OR OTHER DEALINGS IN THE SOFTWARE.                                  *
 *---------------------------------------------------------------------*/
-#include "CustomAnisotropicNonbondedForce.h"
-#include "openmm/Kernel.h"
-#include "openmm/internal/ForceImpl.h"
-#include <utility>
-#include <map>
-#include <string>
 
-namespace CustomAnisotropicNonbondedPlugin {
+#include "openmm/KernelFactory.h"
+
+namespace OpenMM {
+
 /**
- * This is the internal implementation of CustomAnisotropicNonbondedForce.
+ * This KernelFactory creates kernels for the CUDA implementation of the CAN plugin.
  */
-class OPENMM_EXPORT_CAN CustomAnisotropicNonbondedForceImpl : public OpenMM::ForceImpl {
+
+class CudaCustomAnisotropicNonbondedKernelFactory : public KernelFactory {
 public:
-    CustomAnisotropicNonbondedForceImpl(const CustomAnisotropicNonbondedForce& owner);
-    ~CustomAnisotropicNonbondedForceImpl();
-    void initialize(OpenMM::ContextImpl& context);
-    const CustomAnisotropicNonbondedForce& getOwner() const {
-        return owner;
-    }
-    void updateContextState(OpenMM::ContextImpl& context) {
-    }
-    double calcForcesAndEnergy(OpenMM::ContextImpl& context, bool includeForces, bool includeEnergy, int groups);
-    std::map<std::string, double> getDefaultParameters();
-    std::vector<std::string> getKernelNames();
-    void updateParametersInContext(OpenMM::ContextImpl& context);
-private:
-    const CustomAnisotropicNonbondedForce& owner;
-    OpenMM::Kernel kernel;
+    KernelImpl* createKernelImpl(std::string name, const Platform& platform, ContextImpl& context) const;
 };
 
 } // namespace OpenMM
 
-#endif
- /*OPENMM_CANFORCEIMPL_H_*/
+#endif /*OPENMM_CUDACUSTOMANISOTROPICNONBONDEDKERNELFACTORY_H_*/

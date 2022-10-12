@@ -1,23 +1,4 @@
-#ifdef WIN32
-  #define _USE_MATH_DEFINES // Needed to get M_PI
-#endif
-#include "sfmt/SFMT.h"
-#include "openmm/internal/AssertionUtilities.h"
-#include "openmm/Context.h"
-#include "openmm/Platform.h"
-#include "openmm/System.h"
-#include "openmm/VirtualSite.h"
-#include "openmm/VerletIntegrator.h"
-#include "CustomAnisotropicNonbondedForce.h"
-#include "openmm/CustomHbondForce.h"
-#include <cmath>
-#include <iostream>
-#include <set>
-#include <vector>
-#include <string>
-#include <cstring>
-#include <ctime>
-#include <chrono>
+#include "CANReferenceTest.h"
 
 using namespace CustomAnisotropicNonbondedPlugin;
 using namespace OpenMM;
@@ -84,12 +65,12 @@ void test_H2O() {
 	H_params[23]=1.344533e-07;
 	H_params[24]=0.000000e+00;
 	vector<Vec3> positions(10);
-	positions[0] = Vec3(0.000,	0.000,	0.000);
-	positions[1] = Vec3(1.037,	0.000,	0.000);
-	positions[2] = Vec3(-0.216,	0.925,	0.000);
-	positions[3] = Vec3(-0.760,	1.668,	-1.061);
-	positions[4] = Vec3(-0.447,	2.592,	-1.286);
-	positions[5] = Vec3(-0.702,	1.817,	-0.283);
+	positions[0] = Vec3(0.000,	0.000,	 0.000);
+	positions[1] = Vec3(1.037,	0.000,	 0.000);
+	positions[2] = Vec3(-0.216,	0.925,	 0.000);
+	positions[3] = Vec3(-0.760,	0.668,	-1.061);
+	positions[4] = Vec3(-0.447,	1.592,	-1.286);
+	positions[5] = Vec3(-0.702,	0.817,	-0.283);
 	positions[6] = (positions[1] + positions[2])/2.0;
 	positions[7] = (positions[2]-positions[0]).cross(positions[1]-positions[0]) + positions[0];
 	positions[8] = (positions[4] + positions[5])/2.0;
@@ -309,6 +290,8 @@ void test_H2O() {
 	forceField->addExclusion(9,3);
 	forceField->addExclusion(9,4);
 	forceField->addExclusion(9,5);
+	
+
 	system.addForce(forceField);
 
 	VerletIntegrator integrator(0.01);

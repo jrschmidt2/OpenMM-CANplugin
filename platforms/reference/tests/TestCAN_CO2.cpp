@@ -1,24 +1,4 @@
-#ifdef WIN32
-  #define _USE_MATH_DEFINES // Needed to get M_PI
-#endif
-#include "sfmt/SFMT.h"
-#include "openmm/internal/AssertionUtilities.h"
-#include "openmm/Context.h"
-#include "openmm/Platform.h"
-#include "openmm/System.h"
-#include "openmm/VerletIntegrator.h"
-#include "CustomAnisotropicNonbondedForce.h"
-#include "openmm/CustomHbondForce.h"
-//#include "openmm/CustomNonbondedForce.h"
-#include <cmath>
-#include <iostream>
-#include <set>
-#include <vector>
-#include <string>
-#include <cstring>
-#include <ctime>
-#include <chrono>
-
+#include "CANReferenceTest.h"
 using namespace CustomAnisotropicNonbondedPlugin;
 using namespace OpenMM;
 using namespace std;
@@ -92,15 +72,26 @@ void test_CO2() {
 	positions[5] = Vec3(1.420,1.710,1.420);
 */
 	vector<Vec3> positions(9);
+	positions[0] = Vec3(0.4752,   0.3752,   0.4752);  
+	positions[1] = Vec3(0.5418,   0.4418,   0.5418);
+	positions[2] = Vec3(0.4086,   0.3086,   0.4086);
+	positions[3] = Vec3(0.4752,   0.3752,   0.5752);  
+	positions[4] = Vec3(0.5418,   0.4418,   0.6418);
+	positions[5] = Vec3(0.4086,   0.3086,   0.5086);
+	positions[6] = Vec3(0.4752,   0.3752,   0.6752);  
+	positions[7] = Vec3(0.5418,   0.4418,   0.7418);
+	positions[8] = Vec3(0.4086,   0.3086,   0.6086);
+/*
 	positions[0] = Vec3(4.752,   3.752,   4.752);  
 	positions[1] = Vec3(5.418,   4.418,   5.418);
 	positions[2] = Vec3(4.086,   3.086,   4.086);
 	positions[3] = Vec3(4.752,   3.752,   5.752);  
 	positions[4] = Vec3(5.418,   4.418,   6.418);
 	positions[5] = Vec3(4.086,   3.086,   5.086);
-	positions[6] = Vec3(4.752,   3.752,   6.752);  
-	positions[7] = Vec3(5.418,   4.418,   7.418);
-	positions[8] = Vec3(4.086,   3.086,   8.086);
+	positions[6] = Vec3(4.752,   3.752,   4.952);  
+	positions[7] = Vec3(5.418,   4.418,   5.618);
+	positions[8] = Vec3(4.086,   3.086,   4.286);
+*/
 //	std::clock_t start = std::clock();
 	steady_clock::time_point start1 = steady_clock::now();
 	//define Hbond system
